@@ -5,12 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication1;
 
-public partial class Assembly
+public partial class TaxiDepot
 {
     [Key]
     public int Id { get; set; }
-
-    public string? Name { get; set; }
-
-    public virtual ICollection<Part> Parts { get; set; } = new List<Part>();
+    public string? Address { get; set; }
+    public virtual ICollection<TaxiGroup> TaxiGroups { get; set; } = new List<TaxiGroup>();
 }

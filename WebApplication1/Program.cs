@@ -11,17 +11,17 @@ var builder = WebApplication.CreateBuilder(args);
 // builder.Services.AddControllers().AddNewtonsoftJson(x =>
 //     x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
-builder.Services.AddDbContext<AssembliesDbContext>();
+builder.Services.AddDbContext<ApplicationContext>();
 
 var app = builder.Build();
 
-//AssembliesDbContext db = new AssembliesDbContext();
+//ApplicationContext db = new ApplicationContext();
 
-app.MapGet("/api/Detail/{id}", (AssembliesDbContext db, string id) =>
+app.MapGet("/api/Car/{Id}", (ApplicationContext db, string id) =>
 {
     using (db)
     {
-        Detail? ans = db.Details.Find(long.Parse(id));
+        Car? ans = db.Cars.Find(int.Parse(id));
         if (ans != null)
         {
            return Results.Json(ans); 
@@ -33,12 +33,12 @@ app.MapGet("/api/Detail/{id}", (AssembliesDbContext db, string id) =>
     }
 });
 
-app.MapGet("/api/Details", (AssembliesDbContext db) =>
+app.MapGet("/api/Cars", (ApplicationContext db) =>
 {
     using (db)
     {
-        List<Detail> temp = new List<Detail>();
-        temp = db.Details.ToList();
+        List<Car> temp = new List<Car>();
+        temp = db.Cars.ToList();
         if (temp.Count!=0)
         {
                    return Results.Json(temp);
@@ -50,15 +50,15 @@ app.MapGet("/api/Details", (AssembliesDbContext db) =>
     }
 });
 
-app.MapPost("/api/Detail", (AssembliesDbContext db, Detail data) =>
+app.MapPost("/api/Car", (ApplicationContext db, Car data) =>
 {
     using (db)
     {
-        Detail? dublicat = db.Details.FirstOrDefault(u=>u.Name==data.Name);
-        if (dublicat == null)
+        Car? duplicate = db.Cars.FirstOrDefault(u=>u.Name==data.Name);
+        if (duplicate == null)
         {
 
-            db.Details.Add(data);
+            db.Cars.Add(data);
             db.SaveChanges();
             return Results.Ok();
         }
@@ -69,11 +69,11 @@ app.MapPost("/api/Detail", (AssembliesDbContext db, Detail data) =>
     }
 });
 
-app.MapPut("/api/Detail", (AssembliesDbContext db, Detail data) =>
+app.MapPut("/api/Car", (ApplicationContext db, Car data) =>
 {
     using (db)
     {
-        Detail? temp = db.Details.Find(data.Id);
+        Car? temp = db.Cars.Find(data.Id);
         if (temp == null)
         {
             return Results.NotFound();
@@ -81,23 +81,22 @@ app.MapPut("/api/Detail", (AssembliesDbContext db, Detail data) =>
         else
         {
             temp.Name=data.Name;
-            temp.Quantity = data.Quantity;
-            //temp.Description = data.Description
-            db.Details.Update(temp);
+            temp.SitCounter = data.SitCounter;
+            db.Cars.Update(temp);
             db.SaveChanges();
             return Results.Ok();
         }
     }
 });
 
-app.MapDelete("/api/Detail/{id}", (AssembliesDbContext db, string id) =>
+app.MapDelete("/api/Car/{Id}", (ApplicationContext db, string id) =>
 {
     using (db)
     {
-        var detail = db.Details.Attach(new Detail { Id = int.Parse(id) });
-        if (detail != null)
+        var car = db.Cars.Attach(new Car { Id = int.Parse(id) });
+        if (car != null)
         {
-            detail.State = EntityState.Deleted;
+            car.State = EntityState.Deleted;
             db.SaveChanges();
             return Results.Ok(); 
         }
@@ -108,39 +107,38 @@ app.MapDelete("/api/Detail/{id}", (AssembliesDbContext db, string id) =>
     }
 });
 
-app.MapGet("/api/Assembly/{id}", (AssembliesDbContext db, string id) =>
+app.MapGet("/api/TaxiDepot/{Id}", (ApplicationContext db, string id) =>
 {
     using (db)
     {
-        Assembly? assembly = db.Assemblies.Find(int.Parse(id));
-        if (assembly != null)
+        TaxiDepot? taxiDepot = db.TaxiDepots.Find(int.Parse(id));
+        if (taxiDepot != null)
         {
-            db.Parts.Where(u => u.AssemblyId == assembly.Id).Load();
-            List<Part> temp = assembly.Parts.ToList();
-            List<PartView> partViews = new List<PartView>();
+            db.TaxiGroups.Where(u => u.TaxiDepotId == taxiDepot.Id).Load();
+            List<TaxiGroup> temp = taxiDepot.TaxiGroups.ToList();
+            List<TaxiGroupView> taxiGroupViews = new List<TaxiGroupView>();
             foreach (var VARIABLE in temp)
             {
-               db.Details.Where(u=>u.Id==VARIABLE.DetailId).Load(); 
+               db.Cars.Where(u=>u.Id==VARIABLE.CarId).Load(); 
             }
             for (int i = 0; i < temp.Count; i++)
             {
-                PartView partView = new PartView()
+                TaxiGroupView taxiGroupView = new TaxiGroupView()
                 {
-                    AssemblyId = temp[i].AssemblyId,
-                    Detail = temp[i].Detail,
+                    TaxiDepotId = temp[i].TaxiDepotId,
+                    Car = temp[i].Car,
                     Id = temp[i].Id,
-                    Quantity = temp[i].Quantity,
-                    DetailId = temp[i].DetailId,
-                    DetailName = temp[i].DetailName //удали если нет detailname
+                    SitCounter = temp[i].SitCounter,
+                    CarId = temp[i].CarId,
                 };
-                partViews.Add(partView);
+                taxiGroupViews.Add(taxiGroupView);
             }
 
-            Assemblyview ans = new Assemblyview()
+            TaxiDepotView ans = new TaxiDepotView()
             {
-                id = assembly.Id,
-                name = assembly.Name, 
-                Parts = partViews
+                Id = taxiDepot.Id,
+                Address = taxiDepot.Address, 
+                TaxiGroups = taxiGroupViews
             };
             return Results.Json(ans);
         }
@@ -151,42 +149,42 @@ app.MapGet("/api/Assembly/{id}", (AssembliesDbContext db, string id) =>
     }
 });
 
-app.MapGet("/api/Assemblies", (AssembliesDbContext db) =>
+app.MapGet("/api/TaxiDepots", (ApplicationContext db) =>
 {
     using (db)
     {
-        List<Assembly> data = new List<Assembly>();
-        data = db.Assemblies.ToList();
-        foreach (var VARIABLE in data)
-        {
-            db.Parts.Load();
-        }
+        List<TaxiDepot> data = new List<TaxiDepot>();
+        data = db.TaxiDepots.Include(x => x.TaxiGroups).ThenInclude(u => u.Car).ToList();
+        // data = db.TaxiDepots.ToList();
+        // foreach (var VARIABLE in data)
+        // {
+        //     db.TaxiGroups.Load();
+        // }
         if (data.Count!=0)
         {
-            List<Assemblyview> ansdata = new List<Assemblyview>();
-            foreach (var assembly in data)
+            List<TaxiDepotView> ansdata = new List<TaxiDepotView>();
+            foreach (var taxiDepot in data)
             {
-                List<Part> temp = assembly.Parts.ToList();
-                List<PartView> partViews = new List<PartView>();
+                List<TaxiGroup> temp = taxiDepot.TaxiGroups.ToList();
+                List<TaxiGroupView> taxiGroupViews = new List<TaxiGroupView>();
                 for (int i = 0; i < temp.Count; i++)
                 {
-                    PartView partView = new PartView()
+                    TaxiGroupView taxiGroupView = new TaxiGroupView()
                     {
-                        AssemblyId = temp[i].AssemblyId,
-                        Detail = temp[i].Detail,
+                        TaxiDepotId = temp[i].TaxiDepotId,
+                        Car = temp[i].Car,
                         Id = temp[i].Id,
-                        Quantity = temp[i].Quantity,
-                        DetailId = temp[i].DetailId,
-                        DetailName = temp[i].DetailName //удали если нет detailname
+                        SitCounter = temp[i].SitCounter,
+                        CarId = temp[i].CarId,
                     };
-                    partViews.Add(partView);
+                    taxiGroupViews.Add(taxiGroupView);
                 }
 
-                Assemblyview ans = new Assemblyview()
+                TaxiDepotView ans = new TaxiDepotView()
                 {
-                    id = assembly.Id,
-                    name = assembly.Name, 
-                    Parts = partViews
+                    Id = taxiDepot.Id,
+                    Address = taxiDepot.Address, 
+                    TaxiGroups = taxiGroupViews
                 };
                 ansdata.Add(ans);
             }
@@ -199,34 +197,33 @@ app.MapGet("/api/Assemblies", (AssembliesDbContext db) =>
     }
 });
 
-app.MapPost("api/Assembly", (AssembliesDbContext db, Assemblyview data) =>
+app.MapPost("api/TaxiDepot", (ApplicationContext db, TaxiDepotView data) =>
 {
     using (db)
     {
-        Assembly? dublicat = db.Assemblies.FirstOrDefault(u=>u.Name==data.name);
-        if (dublicat == null)
+        TaxiDepot? duplicate = db.TaxiDepots.FirstOrDefault(u=>u.Address==data.Address);
+        if (duplicate == null)
         {
-            Assembly temp = new Assembly() {Id = data.id, Name = data.name};
-            db.Assemblies.Add(temp);
+            TaxiDepot temp = new TaxiDepot() {Id = data.Id, Address = data.Address};
+            db.TaxiDepots.Add(temp);
             db.SaveChangesAsync();
-            List<Part> parttemp = new List<Part>();
-            foreach (var VARIABLE in data.Parts)
+            List<TaxiGroup> taxigrouptemp = new List<TaxiGroup>();
+            foreach (var VARIABLE in data.TaxiGroups)
             {
-                Part part = new Part()
-                    {   Assembly = temp, 
-                        Quantity = VARIABLE.Quantity, 
-                        DetailName = VARIABLE.DetailName, //удали если нет detailname
-                        DetailId = VARIABLE.DetailId,
-                        Detail = VARIABLE.Detail
+                TaxiGroup taxiGroup = new TaxiGroup()
+                    {   TaxiDepot = temp, 
+                        SitCounter = VARIABLE.SitCounter,
+                        CarId = VARIABLE.CarId,
+                        Car = VARIABLE.Car
                     };
-                parttemp.Add(part);
+                taxigrouptemp.Add(taxiGroup);
             }
 
-            temp.Parts = parttemp;
-            db.Parts.AddRange(temp.Parts);
-            db.Assemblies.Update(temp);
-            //db.Assemblies.Add(temp);
-            //db.Parts.AddRange(temp.Parts);
+            temp.TaxiGroups = taxigrouptemp;
+            db.TaxiGroups.AddRange(temp.TaxiGroups);
+            db.TaxiDepots.Update(temp);
+            //db.TaxiDepots.Add(temp);
+            //db.TaxiGroups.AddRange(temp.TaxiGroups);
             db.SaveChanges();
             return Results.Ok();
         }
@@ -237,80 +234,82 @@ app.MapPost("api/Assembly", (AssembliesDbContext db, Assemblyview data) =>
     }
 });
 
-app.MapPut("/api/Assembly", (AssembliesDbContext db, Assemblyview data) =>
+app.MapPut("/api/TaxiDepot", (ApplicationContext db, TaxiDepotView data) =>
 {
     using (db)
     {
-        Assembly? assembly = db.Assemblies.Find(data.id);
-        assembly.Name = data.name;
-        db.Parts.Where(u => u.AssemblyId == assembly.Id).Load();
-        List<Part> oldparts = assembly.Parts.ToList();
-        //List<PartView> newparts = data.Parts.ToList();
-        List<Part> PartsToAdd = new List<Part>();
-        List<Part> PartsToDelete = new List<Part>();
-        List<Part> PartsToUpdate = new List<Part>();
-        for (int i = 0; i < data.Parts.Count; i++)
+        TaxiDepot? taxidepot = db.TaxiDepots.Include(x => x.TaxiGroups)
+            .ThenInclude(u => u.Car)
+            .FirstOrDefault(x => x.Id == data.Id);
+        // TaxiDepot? taxidepot = db.TaxiDepots.Find(data.Id);
+        taxidepot.Address = data.Address;
+        // db.TaxiGroups.Where(u => u.TaxiDepotId == taxidepot.Id).Load();
+        List<TaxiGroup> oldtaxigroups = taxidepot.TaxiGroups.ToList();
+        //List<TaxiGroupView> newparts = data.TaxiGroups.ToList();
+        List<TaxiGroup> TaxigroupsToAdd = new List<TaxiGroup>();
+        List<TaxiGroup> TaxiGroupsToDelete = new List<TaxiGroup>();
+        List<TaxiGroup> TaxiGroupsToUpdate = new List<TaxiGroup>();
+        for (int i = 0; i < data.TaxiGroups.Count; i++)
         {
-            if (oldparts.Exists(u => u.DetailName == data.Parts[i].DetailName))
+            if (oldtaxigroups.Exists(u => u.Car.Name == data.TaxiGroups[i].Car.Name))
             {
-                Part PartOld = oldparts[oldparts.FindIndex(u => u.DetailName == data.Parts[i].DetailName)];
-                PartOld.Quantity = data.Parts[i].Quantity;
-                PartsToUpdate.Add(PartOld);
+                TaxiGroup taxiGroupOld = oldtaxigroups[oldtaxigroups.FindIndex(u => u.CarName == data.TaxiGroups[i].Car.Name)];
+                taxiGroupOld.SitCounter = data.TaxiGroups[i].SitCounter;
+                TaxiGroupsToUpdate.Add(taxiGroupOld);
             }
-            else if (!oldparts.Exists(u => u.DetailName == data.Parts[i].DetailName))
+            else if (!oldtaxigroups.Exists(u => u.CarName == data.TaxiGroups[i].Car.Name))
             {
-                Part parttemp = new Part()
+                TaxiGroup parttemp = new TaxiGroup()
                 {
-                    Assembly = assembly,
-                    AssemblyId = assembly.Id,
-                    Detail = db.Details.FirstOrDefault(u=>u.Name==data.Parts[i].DetailName),
-                    DetailId = db.Details.FirstOrDefault(u=>u.Name==data.Parts[i].DetailName).Id,
-                    DetailName = data.Parts[i].DetailName, //удали если нет detailname
-                    Quantity = data.Parts[i].Quantity
+                    TaxiDepot = taxidepot,
+                    TaxiDepotId = taxidepot.Id,
+                    Car = db.Cars.FirstOrDefault(u=>u.Name==data.TaxiGroups[i].Car.Name),
+                    CarId = db.Cars.FirstOrDefault(u=>u.Name==data.TaxiGroups[i].Car.Name).Id,
+                    SitCounter = data.TaxiGroups[i].SitCounter
                 };
-                PartsToAdd.Add(parttemp);
+                TaxigroupsToAdd.Add(parttemp);
             }
         }
 
-        foreach (var VARIABLE in oldparts)
+        foreach (var VARIABLE in oldtaxigroups)
         {
-            if (!data.Parts.Exists(u=>u.DetailName==VARIABLE.DetailName))
+            if (!data.TaxiGroups.Exists(u=>u.Car.Name==VARIABLE.Car.Name))
             {
-                PartsToDelete.Add(VARIABLE);
+                TaxiGroupsToDelete.Add(VARIABLE);
             }
-        }
-
-        if (PartsToUpdate.Count!=0)
-        {
-            oldparts = PartsToUpdate;
-            db.Parts.UpdateRange(oldparts);
         }
         
-        if (PartsToDelete.Count!=0)
+        if (TaxiGroupsToUpdate.Count!=0)
         {
-            db.Parts.RemoveRange(PartsToDelete);
+            oldtaxigroups = TaxiGroupsToUpdate;
+            db.TaxiGroups.UpdateRange(oldtaxigroups);
+        }
+        
+        if (TaxiGroupsToDelete.Count!=0)
+        {
+            db.TaxiGroups.RemoveRange(TaxiGroupsToDelete);
         }
 
-        if (PartsToAdd.Count!=0)
+        if (TaxigroupsToAdd.Count!=0)
         {
-            db.Parts.AddRange(PartsToAdd);
+            db.TaxiGroups.AddRange(TaxigroupsToAdd);
         }
 
-        db.Assemblies.Update(assembly);
+        db.TaxiDepots.Update(taxidepot);
         db.SaveChanges();
     }
 });
 
 
-app.MapDelete("/api/Assembly/{id}", (AssembliesDbContext db, string id) =>
+app.MapDelete("/api/TaxiDepot/{Id}", (ApplicationContext db, string id) =>
 {
     using (db)
     {
-        Assembly? assembly = db.Assemblies.FirstOrDefault(u=>u.Id==long.Parse(id));
-        db.Parts.Where(u=>u.AssemblyId==assembly.Id).Load();
-        if (assembly != null)
+        TaxiDepot? taxidepot = db.TaxiDepots.FirstOrDefault(u=>u.Id==int.Parse(id));
+        db.TaxiGroups.Where(u=>u.TaxiDepotId==taxidepot.Id).Load();
+        if (taxidepot != null)
         {
-            db.Assemblies.Remove(assembly);
+            db.TaxiDepots.Remove(taxidepot);
             db.SaveChanges();
             return Results.Ok(); 
         }
@@ -323,22 +322,18 @@ app.MapDelete("/api/Assembly/{id}", (AssembliesDbContext db, string id) =>
 
 app.Run();
 
-public class Assemblyview
+public class TaxiDepotView
 {
-    public string name { get; set; }
-    public int id { get; set; }
-    public List<PartView> Parts { get; set; } = new List<PartView>();
+    public string Address { get; set; }
+    public int Id { get; set; }
+    public List<TaxiGroupView> TaxiGroups { get; set; } = new List<TaxiGroupView>();
 }
 
-public class PartView
+public class TaxiGroupView
 {
     public int Id { get; set; }
-
-    public int AssemblyId { get; set; }
-
-    public int DetailId { get; set; }
-
-    public string DetailName { get; set; } = null!;
-    public Detail Detail { get; set; } = null!;
-    public long Quantity { get; set; }
+    public int TaxiDepotId { get; set; }
+    public int CarId { get; set; }
+    public Car Car { get; set; } = null!;
+    public int SitCounter { get; set; }
 }

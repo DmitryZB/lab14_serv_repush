@@ -1,25 +1,26 @@
 {
   "format": 1,
   "restore": {
-    "/Users/marmelad/RiderProjects/lab14_serv/WebApplication1/WebApplication1.csproj": {}
+    "/Users/dimon/Desktop/PROGRAMMING/C#/lab14_servpart/WebApplication1/WebApplication1.csproj": {}
   },
   "projects": {
-    "/Users/marmelad/RiderProjects/lab14_serv/WebApplication1/WebApplication1.csproj": {
+    "/Users/dimon/Desktop/PROGRAMMING/C#/lab14_servpart/WebApplication1/WebApplication1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/marmelad/RiderProjects/lab14_serv/WebApplication1/WebApplication1.csproj",
+        "projectUniqueName": "/Users/dimon/Desktop/PROGRAMMING/C#/lab14_servpart/WebApplication1/WebApplication1.csproj",
         "projectName": "WebApplication1",
-        "projectPath": "/Users/marmelad/RiderProjects/lab14_serv/WebApplication1/WebApplication1.csproj",
-        "packagesPath": "/Users/marmelad/.nuget/packages/",
-        "outputPath": "/Users/marmelad/RiderProjects/lab14_serv/WebApplication1/obj/",
+        "projectPath": "/Users/dimon/Desktop/PROGRAMMING/C#/lab14_servpart/WebApplication1/WebApplication1.csproj",
+        "packagesPath": "/Users/dimon/.nuget/packages/",
+        "outputPath": "/Users/dimon/Desktop/PROGRAMMING/C#/lab14_servpart/WebApplication1/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/marmelad/.nuget/NuGet/NuGet.Config"
+          "/Users/dimon/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

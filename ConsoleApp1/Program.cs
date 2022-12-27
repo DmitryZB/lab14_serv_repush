@@ -9,7 +9,7 @@ class Program
         client.BaseAddress = new Uri("http://localhost:5204");
         void viewdetail()
         {
-            string url = "http://localhost:5204/api/Detail/2";
+            string url = "http://localhost:5204/api/Car/2";
             Task<HttpResponseMessage> request = new HttpClient().SendAsync(new HttpRequestMessage(HttpMethod.Get, url));
             Task<Stream> stream1 = request.Result.Content.ReadAsStreamAsync();
             StreamReader sr1 = new StreamReader(stream1.Result);
@@ -22,7 +22,7 @@ class Program
         void alldetails()
         {
             
-            string url = "http://localhost:5204/api/Details";
+            string url = "http://localhost:5204/api/Cars";
             Task<HttpResponseMessage> request = new HttpClient().SendAsync(new HttpRequestMessage(HttpMethod.Get, url));
             Task<Stream> stream1 = request.Result.Content.ReadAsStreamAsync();
             StreamReader sr1 = new StreamReader(stream1.Result);
@@ -34,10 +34,10 @@ class Program
 
         void addDetail()
         {
-            Detail temp = new Detail() {Name = "test2", Quantity = 123};
+            Car temp = new Car() {Name = "test2", SitCounter = 123};
             
             Task<HttpResponseMessage> request =  client.PostAsJsonAsync(
-                $"api/Detail", temp);
+                $"api/Car", temp);
             Task<Stream> stream1 = request.Result.Content.ReadAsStreamAsync();
             StreamReader sr1 = new StreamReader(stream1.Result);
             string data1 = sr1.ReadToEnd();
@@ -48,10 +48,10 @@ class Program
 
         void changedetail()
         {
-            Detail temp = new Detail() {Name = "test3", Quantity = 321, Id = 3};
+            Car temp = new Car() {Name = "test3", SitCounter = 321, Id = 3};
             
             Task<HttpResponseMessage> request =  client.PutAsJsonAsync(
-                $"api/Detail", temp);
+                $"api/Car", temp);
             string ans = request.Result.StatusCode.ToString();
             Task<Stream> stream1 = request.Result.Content.ReadAsStreamAsync();
             StreamReader sr1 = new StreamReader(stream1.Result);
@@ -63,7 +63,7 @@ class Program
         void deletedetail()
         {
             
-            string url = "http://localhost:5204/api/Detail/2";
+            string url = "http://localhost:5204/api/Car/2";
             Task<HttpResponseMessage> request = new HttpClient().SendAsync(new HttpRequestMessage(HttpMethod.Delete, url));
             Task<Stream> stream1 = request.Result.Content.ReadAsStreamAsync();
             StreamReader sr1 = new StreamReader(stream1.Result);
@@ -76,7 +76,7 @@ class Program
         void viewAssembly()
         {
             
-            string url = "http://localhost:5204/api/Assembly/1";
+            string url = "http://localhost:5204/api/TaxiDepot/1";
             Task<HttpResponseMessage> request = client.SendAsync(new HttpRequestMessage(HttpMethod.Get, url));
             Task<Stream> stream1 = request.Result.Content.ReadAsStreamAsync();
             StreamReader sr1 = new StreamReader(stream1.Result);
@@ -89,7 +89,7 @@ class Program
         void allassemblies()
         {
             
-            string url = "http://localhost:5204/api/Assemblies";
+            string url = "http://localhost:5204/api/TaxiDepots";
             Task<HttpResponseMessage> request = new HttpClient().SendAsync(new HttpRequestMessage(HttpMethod.Get, url));
             Task<Stream> stream1 = request.Result.Content.ReadAsStreamAsync();
             StreamReader sr1 = new StreamReader(stream1.Result);
@@ -101,11 +101,11 @@ class Program
         void addassembly()
         {
             
-            PartView a = new PartView() {DetailName = "test1", DetailId = 1, Quantity = 5};
-            PartView b = new PartView() {DetailName = "test2", DetailId = 2, Quantity = 5};
-            Assemblyview temp = new Assemblyview() {name = "test1", Parts = {a, b}};
+            TaxiGroupView a = new TaxiGroupView() {DetailName = "test1", DetailId = 1, SitCounter = 5};
+            TaxiGroupView b = new TaxiGroupView() {DetailName = "test2", DetailId = 2, SitCounter = 5};
+            TaxiDepotView temp = new TaxiDepotView() {name = "test1", TaxiGroups = {a, b}};
             Task<HttpResponseMessage> request =  client.PostAsJsonAsync(
-                $"api/Assembly", temp);
+                $"api/TaxiDepot", temp);
             Task<Stream> stream1 = request.Result.Content.ReadAsStreamAsync();
             StreamReader sr1 = new StreamReader(stream1.Result);
             string data1 = sr1.ReadToEnd();
@@ -117,11 +117,11 @@ class Program
         void changessembly()
         {
             
-            PartView a = new PartView() {DetailName = "test1", DetailId = 1, Quantity = 12};
-            PartView b = new PartView() {DetailName = "test2", DetailId = 2, Quantity = 12};
-            Assemblyview temp = new Assemblyview() {name = "test1", Parts = {a, b}, id = 1};
+            TaxiGroupView a = new TaxiGroupView() {DetailName = "test1", DetailId = 1, SitCounter = 12};
+            TaxiGroupView b = new TaxiGroupView() {DetailName = "test2", DetailId = 2, SitCounter = 12};
+            TaxiDepotView temp = new TaxiDepotView() {name = "test1", TaxiGroups = {a, b}, id = 1};
             Task<HttpResponseMessage> request =  client.PutAsJsonAsync(
-                $"api/Assembly", temp);
+                $"api/TaxiDepot", temp);
             Task<Stream> stream1 = request.Result.Content.ReadAsStreamAsync();
             StreamReader sr1 = new StreamReader(stream1.Result);
             string data1 = sr1.ReadToEnd();
@@ -133,7 +133,7 @@ class Program
         void deleteassembly()
         {
             
-            string url = "http://localhost:5204/api/Assembly/2";
+            string url = "http://localhost:5204/api/TaxiDepot/2";
             Task<HttpResponseMessage> request = new HttpClient().SendAsync(new HttpRequestMessage(HttpMethod.Delete, url));
             Task<Stream> stream1 = request.Result.Content.ReadAsStreamAsync();
             StreamReader sr1 = new StreamReader(stream1.Result);
