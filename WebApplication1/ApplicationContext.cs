@@ -25,15 +25,15 @@ public partial class ApplicationContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlite("Data Source = /Users/dimon/Desktop/PROGRAMMING/C#/lab14/WebApplication1/DataBase/AssembliesDB.db");
+        => optionsBuilder.UseSqlite("Data Source = /Users/oldmash/RiderProjects/labsC#/DimaClient/WebApplication1/DataBase/AssembliesDB.db");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<TaxiGroup>(entity =>
         {
-            entity.HasIndex(e => e.TaxiDepotId, "IX_Parts_AssemblyId"); // ПОМЕНЯТЬ //
+            entity.HasIndex(e => e.TaxiDepotId, "IX_TaxiGroups_TaxiDepotId"); // ПОМЕНЯТЬ //
 
-            entity.HasIndex(e => e.CarId, "IX_Parts_DetailId");
+            entity.HasIndex(e => e.CarId, "IX_TaxiGroups_CarId");
 
             entity.HasOne(d => d.TaxiDepot).WithMany(p => p.TaxiGroups).HasForeignKey(d => d.TaxiDepotId);
 

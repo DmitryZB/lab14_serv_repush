@@ -12,10 +12,9 @@ public partial class TaxiGroup
     public int Id { get; set; }
     public int TaxiDepotId { get; set; }
     public int CarId { get; set; }
-    public string CarName { get; set; } = null!;
     public virtual Car Car { get; set; } = null!;
 
-    public int SitCounter { get; set; }
+    public int Quantity { get; set; }
     //[JsonIgnore] 
     public virtual TaxiDepot TaxiDepot { get; set; } = null!;
 }

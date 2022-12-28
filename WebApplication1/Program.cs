@@ -128,7 +128,7 @@ app.MapGet("/api/TaxiDepot/{Id}", (ApplicationContext db, string id) =>
                     TaxiDepotId = temp[i].TaxiDepotId,
                     Car = temp[i].Car,
                     Id = temp[i].Id,
-                    SitCounter = temp[i].SitCounter,
+                    Quantity = temp[i].Quantity,
                     CarId = temp[i].CarId,
                 };
                 taxiGroupViews.Add(taxiGroupView);
@@ -138,7 +138,7 @@ app.MapGet("/api/TaxiDepot/{Id}", (ApplicationContext db, string id) =>
             {
                 Id = taxiDepot.Id,
                 Address = taxiDepot.Address, 
-                TaxiGroups = taxiGroupViews
+                TaxiGroupViews = taxiGroupViews
             };
             return Results.Json(ans);
         }
@@ -174,7 +174,7 @@ app.MapGet("/api/TaxiDepots", (ApplicationContext db) =>
                         TaxiDepotId = temp[i].TaxiDepotId,
                         Car = temp[i].Car,
                         Id = temp[i].Id,
-                        SitCounter = temp[i].SitCounter,
+                        Quantity = temp[i].Quantity,
                         CarId = temp[i].CarId,
                     };
                     taxiGroupViews.Add(taxiGroupView);
@@ -184,7 +184,7 @@ app.MapGet("/api/TaxiDepots", (ApplicationContext db) =>
                 {
                     Id = taxiDepot.Id,
                     Address = taxiDepot.Address, 
-                    TaxiGroups = taxiGroupViews
+                    TaxiGroupViews = taxiGroupViews
                 };
                 ansdata.Add(ans);
             }
@@ -208,11 +208,11 @@ app.MapPost("api/TaxiDepot", (ApplicationContext db, TaxiDepotView data) =>
             db.TaxiDepots.Add(temp);
             db.SaveChangesAsync();
             List<TaxiGroup> taxigrouptemp = new List<TaxiGroup>();
-            foreach (var VARIABLE in data.TaxiGroups)
+            foreach (var VARIABLE in data.TaxiGroupViews)
             {
                 TaxiGroup taxiGroup = new TaxiGroup()
                     {   TaxiDepot = temp, 
-                        SitCounter = VARIABLE.SitCounter,
+                        Quantity = VARIABLE.Quantity,
                         CarId = VARIABLE.CarId,
                         Car = VARIABLE.Car
                     };
@@ -249,23 +249,23 @@ app.MapPut("/api/TaxiDepot", (ApplicationContext db, TaxiDepotView data) =>
         List<TaxiGroup> TaxigroupsToAdd = new List<TaxiGroup>();
         List<TaxiGroup> TaxiGroupsToDelete = new List<TaxiGroup>();
         List<TaxiGroup> TaxiGroupsToUpdate = new List<TaxiGroup>();
-        for (int i = 0; i < data.TaxiGroups.Count; i++)
+        for (int i = 0; i < data.TaxiGroupViews.Count; i++)
         {
-            if (oldtaxigroups.Exists(u => u.Car.Name == data.TaxiGroups[i].Car.Name))
+            if (oldtaxigroups.Exists(u => u.Car.Name == data.TaxiGroupViews[i].Car.Name))
             {
-                TaxiGroup taxiGroupOld = oldtaxigroups[oldtaxigroups.FindIndex(u => u.CarName == data.TaxiGroups[i].Car.Name)];
-                taxiGroupOld.SitCounter = data.TaxiGroups[i].SitCounter;
+                TaxiGroup taxiGroupOld = oldtaxigroups[oldtaxigroups.FindIndex(u => u.Car.Name == data.TaxiGroupViews[i].Car.Name)];
+                taxiGroupOld.Quantity = data.TaxiGroupViews[i].Quantity;
                 TaxiGroupsToUpdate.Add(taxiGroupOld);
             }
-            else if (!oldtaxigroups.Exists(u => u.CarName == data.TaxiGroups[i].Car.Name))
+            else if (!oldtaxigroups.Exists(u => u.Car.Name == data.TaxiGroupViews[i].Car.Name))
             {
                 TaxiGroup parttemp = new TaxiGroup()
                 {
                     TaxiDepot = taxidepot,
                     TaxiDepotId = taxidepot.Id,
-                    Car = db.Cars.FirstOrDefault(u=>u.Name==data.TaxiGroups[i].Car.Name),
-                    CarId = db.Cars.FirstOrDefault(u=>u.Name==data.TaxiGroups[i].Car.Name).Id,
-                    SitCounter = data.TaxiGroups[i].SitCounter
+                    Car = db.Cars.FirstOrDefault(u=>u.Name==data.TaxiGroupViews[i].Car.Name),
+                    CarId = db.Cars.FirstOrDefault(u=>u.Name==data.TaxiGroupViews[i].Car.Name).Id,
+                    Quantity = data.TaxiGroupViews[i].Quantity
                 };
                 TaxigroupsToAdd.Add(parttemp);
             }
@@ -273,7 +273,7 @@ app.MapPut("/api/TaxiDepot", (ApplicationContext db, TaxiDepotView data) =>
 
         foreach (var VARIABLE in oldtaxigroups)
         {
-            if (!data.TaxiGroups.Exists(u=>u.Car.Name==VARIABLE.Car.Name))
+            if (!data.TaxiGroupViews.Exists(u=>u.Car.Name==VARIABLE.Car.Name))
             {
                 TaxiGroupsToDelete.Add(VARIABLE);
             }
@@ -324,9 +324,9 @@ app.Run();
 
 public class TaxiDepotView
 {
-    public string Address { get; set; }
+    public string? Address { get; set; }
     public int Id { get; set; }
-    public List<TaxiGroupView> TaxiGroups { get; set; } = new List<TaxiGroupView>();
+    public List<TaxiGroupView> TaxiGroupViews { get; set; } = new List<TaxiGroupView>();
 }
 
 public class TaxiGroupView
@@ -335,5 +335,5 @@ public class TaxiGroupView
     public int TaxiDepotId { get; set; }
     public int CarId { get; set; }
     public Car Car { get; set; } = null!;
-    public int SitCounter { get; set; }
+    public int Quantity { get; set; }
 }
